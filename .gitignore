@@ -1,0 +1,6 @@
+.idea/
+migrate
+log/
+outbox
+./users
+.env
