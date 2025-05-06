@@ -1,80 +1,23 @@
 services:
-  wallets-postgres:
-    container_name: wallets-postgres
-    restart: always
-    build:
-      context: docker/postgres
-      dockerfile: postgres.Dockerfile
-      shm_size: '256m'
-    image: postgres:latest
-    env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${PG_USER}
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
-      TZ: "Asia/Novosibirsk"
-    healthcheck:
-      test: ["CMD", "pg_isready"]
-      interval: 30s
-      timeout: 2s
-      retries: 2
-      start_period: 5s
-    ports:
-      - ${PG_EXTERNAL_PORT:-5432}:5432
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    networks:
-      - subtrack-net
-  consumer:
-    container_name: wallets-consumer
-    restart: always
-    build:
-      context: .
-      dockerfile: docker/go-wallets-consumer/go.Dockerfile
-    image: consumer-app:latest
-    environment:
-      - TZ=Asia/Novosibirsk
-    networks:
-      - subtrack-net
-  redis:
-    container_name: wallets-redis
-    restart: always
-    build:
-      context: docker/redis
-      dockerfile: redis.Dockerfile
-      args:
-        REDIS_PASSWORD: ${REDIS_PASSWORD}
-    image: redis:latest
-    ports:
-      - ${REDIS_EXTERNAL_PORT:-6379}:6379
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      REDIS_USERNAME: ${REDIS_USERNAME}
-    volumes:
-      - redis_data:/data
-    command: [ "redis-server", "--requirepass", "password" ]
-    networks:
-      - subtrack-net
   app:
-    container_name: wallets-app
+    container_name: blockchain-gateway-app
     restart: always
     build:
       context: .
-      dockerfile: docker/go-wallets/go.Dockerfile
+      dockerfile: docker/go-blockchain-gateway/go.Dockerfile
       args:
         PORT: ${PUBLIC_HTTP_ADDR}
-    image: wallets-app:latest
+    image: blockchain-gateway-app:latest
     environment:
       - TZ=Asia/Novosibirsk
     ports:
       - ${PUBLIC_HTTP_ADDR}:${PUBLIC_HTTP_ADDR}
+      - ${PRIVATE_GRPC_ADDR}:${PRIVATE_GRPC_ADDR}
     networks:
       - subtrack-net
 volumes:
-  pg_data:
-    name: wallets-pg_data
   redis_data:
-    name: wallets-redis_data
+    name: users-redis_data
 networks:
   subtrack-net:
     name: subtrack-net

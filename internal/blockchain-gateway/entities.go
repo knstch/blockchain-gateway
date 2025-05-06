@@ -2,11 +2,15 @@ package blockchain
 
 import "math/big"
 
-type Wallet struct {
-	PublicAddr     string
-	TokenAddresses []string
+type WalletWithBalance struct {
+	NativeBalance string
+	Tokens        []Token
 }
 
+type Token struct {
+	Balance string
+	Symbol  string
+}
 type TokenInfo struct {
 	Balance *big.Float
 	Symbol  string

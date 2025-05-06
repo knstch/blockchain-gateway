@@ -4,15 +4,16 @@ FROM base AS builder
 
 WORKDIR /build
 COPY . ./
-RUN go build ./cmd/wallets
+RUN go build ./cmd/blockchain-gateway
 
 FROM base AS final
 
 ARG PORT
 
 WORKDIR /app
-COPY --from=builder /build/wallets /build/.env ./
-COPY --from=builder /build/wallets ./
+COPY --from=builder /build/blockchain-gateway /build/.env ./
+COPY --from=builder /build/blockchain-gateway ./
 
 EXPOSE ${PUBLIC_HTTP_ADDR}
-CMD ["/app/wallets"]
+EXPOSE ${PRIVATE_GRPC_ADDR}
+CMD ["/app/blockchain-gateway"]

@@ -1,18 +1,13 @@
-package public
+package private
 
 import (
+	"blockchain-gateway/config"
+	"blockchain-gateway/internal/blockchain-gateway"
 	"github.com/go-kit/kit/endpoint"
-	httptransport "github.com/go-kit/kit/transport/http"
-	public "github.com/knstch/blockchain-gateway-api/public"
-	"github.com/knstch/subtrack-libs/log"
-	"github.com/knstch/subtrack-libs/middleware"
-	"github.com/knstch/subtrack-libs/transport"
-	"net/http"
-
-	"wallets-service/config"
-	"wallets-service/internal/wallets"
-
 	"github.com/knstch/subtrack-libs/endpoints"
+	"github.com/knstch/subtrack-libs/log"
+
+	privateApi "github.com/knstch/blockchain-gateway-api/private"
 )
 
 type Endpoints struct {
@@ -20,12 +15,14 @@ type Endpoints struct {
 }
 
 type Controller struct {
-	svc wallets.Wallets
+	svc blockchain.Blockchain
 	lg  *log.Logger
 	cfg *config.Config
+
+	privateApi.UnimplementedBlockchainGatewayServer
 }
 
-func NewController(svc wallets.Wallets, lg *log.Logger, cfg *config.Config) *Controller {
+func NewController(svc blockchain.Blockchain, lg *log.Logger, cfg *config.Config) *Controller {
 	return &Controller{
 		svc: svc,
 		cfg: cfg,
@@ -34,16 +31,5 @@ func NewController(svc wallets.Wallets, lg *log.Logger, cfg *config.Config) *Con
 }
 
 func (c *Controller) Endpoints() []endpoints.Endpoint {
-	mdw := []middleware.Middleware{middleware.WithCookieAuth(c.cfg.JwtSecret)}
-
-	return []endpoints.Endpoint{
-		{
-			Method:  http.MethodPost,
-			Path:    "/getBalance",
-			Handler: MakeGetBalanceEndpoint(c),
-			Decoder: transport.DecodeJSONRequest[public.GetBalanceRequest],
-			Encoder: httptransport.EncodeJSONResponse,
-			Mdw:     mdw,
-		},
-	}
+	return []endpoints.Endpoint{}
 }

@@ -17,42 +17,11 @@ type Config struct {
 	PublicHTTPAddr  string `envconfig:"PUBLIC_HTTP_ADDR" required:"true"`
 	PrivateGRPCAddr string `envconfig:"PRIVATE_GRPC_ADDR" required:"true"`
 
-	WalletSecret string `envconfig:"WALLET_SECRET" required:"true"`
-
-	KafkaAddr string `envconfig:"KAFKA_ADDR" required:"true"`
-
-	DBConfig DBConfig
-
 	Blockchains BlockchainConfig
-
-	RedisConfig RedisConfig
-}
-
-type DBConfig struct {
-	Host     string `envconfig:"PG_HOST" required:"true"`
-	Port     string `envconfig:"PG_PORT" required:"true"`
-	User     string `envconfig:"PG_USER" required:"true"`
-	Password string `envconfig:"PG_PASSWORD" required:"true"`
 }
 
 type BlockchainConfig struct {
-	PolygonAddr string `envconfig:"POLYGON_ADDR" required:"true"`
-	BscAddr     string `envconfig:"BSC_ADDR" required:"true"`
-}
-
-type RedisConfig struct {
-	Host     string `envconfig:"REDIS_HOST" required:"true"`
-	Port     string `envconfig:"REDIS_PORT" required:"true"`
-	Password string `envconfig:"REDIS_PASSWORD" required:"true"`
-}
-
-func (cfg *Config) GetRedisDSN() string {
-	return fmt.Sprintf("redis://:%s@%s:%s", cfg.RedisConfig.Password, cfg.RedisConfig.Host, cfg.RedisConfig.Port)
-}
-
-func (cfg *Config) GetDSN() string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		cfg.DBConfig.User, cfg.DBConfig.Password, cfg.DBConfig.Host, cfg.DBConfig.Port, cfg.DBConfig.User)
+	BscAddr string `envconfig:"BSC_ADDR" required:"true"`
 }
 
 func GetConfig() (*Config, error) {

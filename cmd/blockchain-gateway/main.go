@@ -1,29 +1,22 @@
 package main
 
 import (
+	"blockchain-gateway/config"
+	"blockchain-gateway/internal/blockchain-gateway"
+	"blockchain-gateway/internal/endpoints/private"
 	"context"
-	"errors"
 	"fmt"
-	"github.com/go-redis/redis"
+	"google.golang.org/grpc"
 	defaultLog "log"
-	"net/http"
+	"net"
 	"os"
-	"os/signal"
 	"path/filepath"
-	"time"
-	"wallets-service/internal/wallets/blockchain"
 
-	"github.com/knstch/subtrack-libs/endpoints"
 	"github.com/knstch/subtrack-libs/log"
 	"github.com/knstch/subtrack-libs/tracing"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
-	"wallets-service/internal/endpoints/public"
-	"wallets-service/internal/wallets"
-	"wallets-service/internal/wallets/repo"
-
-	"wallets-service/config"
+	privateApi "github.com/knstch/blockchain-gateway-api/private"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
 
 func main() {
@@ -55,60 +48,27 @@ func run() error {
 
 	logger := log.NewLogger(cfg.ServiceName, log.InfoLevel)
 
-	db, err := gorm.Open(postgres.Open(cfg.GetDSN()), &gorm.Config{})
+	svc, err := blockchain.NewService(cfg, logger)
 	if err != nil {
-		return fmt.Errorf("gorm.Open: %w", err)
+		return fmt.Errorf("blockchain.NewService: %w", err)
 	}
-	dbRepo := repo.NewDBRepo(logger, db)
 
-	blockchainRedisClient := redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%s", cfg.RedisConfig.Host, cfg.RedisConfig.Port),
-		DB:   1,
-	})
+	privateController := private.NewController(svc, logger, cfg)
 
-	blockchainClient, err := blockchain.NewBlockchainClient(cfg, logger, blockchainRedisClient)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.PrivateGRPCAddr))
 	if err != nil {
-		return fmt.Errorf("blockchain.NewClient: %w", err)
+		return fmt.Errorf("net.Listen: %w", err)
 	}
 
-	walletsRedisClient := redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%s", cfg.RedisConfig.Host, cfg.RedisConfig.Port),
-		DB:   0,
-	})
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
+		grpc.ChainStreamInterceptor(otelgrpc.StreamServerInterceptor()),
+	)
+	privateApi.RegisterBlockchainGatewayServer(grpcServer, privateController)
 
-	svc := wallets.NewService(logger, dbRepo, cfg, blockchainClient, walletsRedisClient)
-
-	publicController := public.NewController(svc, logger, cfg)
-	publicEndpoints := endpoints.InitHttpEndpoints(cfg.ServiceName, publicController.Endpoints())
-
-	srv := http.Server{
-		Addr: ":" + cfg.PublicHTTPAddr,
-		Handler: http.TimeoutHandler(
-			publicEndpoints,
-			time.Second*5,
-			"service temporary unavailable",
-		),
-		ReadHeaderTimeout: time.Millisecond * 500,
-		ReadTimeout:       time.Minute * 5,
+	if err = grpcServer.Serve(lis); err != nil {
+		return fmt.Errorf("grpcServer.Serve: %w", err)
 	}
-
-	idleConnsClosed := make(chan struct{})
-	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
-		<-sigint
-
-		if err = srv.Shutdown(context.Background()); err != nil {
-			defaultLog.Print(err)
-		}
-		close(idleConnsClosed)
-	}()
-
-	if err = srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		return err
-	}
-
-	<-idleConnsClosed
 
 	return nil
 }

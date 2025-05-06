@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-
-	"wallets-service/internal/domain/enum"
+	"github.com/knstch/subtrack-libs/enum"
 )
 
-func (c *ClientImpl) GetTransaction(ctx context.Context, txID string, network enum.Network) (*types.Transaction, error) {
-	client := c.getClient(network)
+// TODO: finish watcher-service
+func (svc *ServiceImpl) GetTransaction(ctx context.Context, txID string, network enum.Network) (*types.Transaction, error) {
+	client := svc.getClient(network)
 	if client == nil {
 		return nil, ErrUnknownNetwork
 	}

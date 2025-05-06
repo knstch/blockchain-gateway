@@ -7,19 +7,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/knstch/subtrack-libs/enum"
 	"math/big"
-	"wallets-service/internal/domain/enum"
 )
 
-func (c *ClientImpl) BuildAndSendTx(ctx context.Context, network enum.Network, privateKey *ecdsa.PrivateKey,
+// TODO: finish watcher-service
+func (svc *ServiceImpl) BuildAndSendTx(ctx context.Context, network enum.Network, privateKey *ecdsa.PrivateKey,
 	walletAddress common.Address, to common.Address, data []byte) (*types.Transaction, error) {
-	client := c.getClient(network)
+	client := svc.getClient(network)
 	if client == nil {
 		return nil, ErrUnknownNetwork
 	}
-	chainID := c.getChainID(network)
+	chainID := svc.getChainID(network)
 
-	tx, err := c.buildTx(ctx, client, walletAddress, to, data, chainID)
+	tx, err := svc.buildTx(ctx, client, walletAddress, to, data, chainID)
 	if err != nil {
 		return nil, err
 	}
@@ -37,14 +38,15 @@ func (c *ClientImpl) BuildAndSendTx(ctx context.Context, network enum.Network, p
 	return signedTx, nil
 }
 
-func (c *ClientImpl) buildTx(ctx context.Context,
+// TODO: finish watcher-service
+func (svc *ServiceImpl) buildTx(ctx context.Context,
 	client *ethclient.Client, walletAddress common.Address, to common.Address, data []byte, chainID *big.Int) (*types.Transaction, error) {
 	nonce, err := client.PendingNonceAt(ctx, walletAddress)
 	if err != nil {
 		return nil, fmt.Errorf("client.PendingNonceAt: %w", err)
 	}
 
-	baseFee, err := c.getBaseGasFee(ctx, client)
+	baseFee, err := svc.getBaseGasFee(ctx, client)
 	if err != nil {
 		return nil, fmt.Errorf("getBaseGasFee: %w", err)
 	}

@@ -1,0 +1,23 @@
+syntax = "proto3";
+package blockchain_gateway.private;
+option go_package = "./";
+
+service BlockchainGateway {
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+}
+
+message GetBalanceRequest {
+  string publicAddress = 1;
+  repeated string tokenAddresses = 2;
+  string network = 3;
+}
+
+message GetBalanceResponse {
+  string nativeBalance = 1;
+  repeated Token tokens = 2;
+}
+
+message Token {
+  string balance = 1;
+  string symbol = 2;
+}
