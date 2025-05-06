@@ -146,8 +146,8 @@ github.com/klauspost/cpuid/v2 v2.0.9 h1:lgaqFMSdTdQYdZ04uHyN2d/eKdOMyi2YLSvlQIBF
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/knstch/blockchain-gateway-api v0.0.5 h1:956HK/aP4NmEziL+Aq9Q0uH1OAJrjPd2uKAHRhcG5q4=
 github.com/knstch/blockchain-gateway-api v0.0.5/go.mod h1:F8RVwMXu6pDQbB6GO4/zY4mwUK16obUjHeUm+2R3P3Q=
-github.com/knstch/subtrack-libs v0.0.17 h1:HoKkB7hD4acwV3iRKtrjlQIR7C+a9miwABmtVLj0NTE=
-github.com/knstch/subtrack-libs v0.0.17/go.mod h1:1C9Rpni0c17wZfP5oP3mxKwywMVywtQr/zqBjMh4GLc=
+github.com/knstch/subtrack-libs v0.1.2 h1:09GM1TolOndojB/FR5cGuLaM8AY/6IV8nwYecwxnHuM=
+github.com/knstch/subtrack-libs v0.1.2/go.mod h1:1C9Rpni0c17wZfP5oP3mxKwywMVywtQr/zqBjMh4GLc=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=

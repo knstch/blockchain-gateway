@@ -34,7 +34,7 @@ func InitHttpEndpoints(serviceName string, endpoints []Endpoint) http.Handler {
 	for _, ep := range endpoints {
 		handler := ep.Handler
 
-		handler = tracing.WithTracing(serviceName)(handler)
+		handler = tracing.WithTracing()(handler)
 
 		for _, mw := range ep.Mdw {
 			handler = mw(handler)

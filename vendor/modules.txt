@@ -166,7 +166,7 @@ github.com/klauspost/compress/zstd/internal/xxhash
 # github.com/knstch/blockchain-gateway-api v0.0.5
 ## explicit; go 1.24
 github.com/knstch/blockchain-gateway-api/private
-# github.com/knstch/subtrack-libs v0.0.17
+# github.com/knstch/subtrack-libs v0.1.2
 ## explicit; go 1.24.1
 github.com/knstch/subtrack-libs/auth
 github.com/knstch/subtrack-libs/endpoints

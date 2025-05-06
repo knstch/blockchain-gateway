@@ -11,7 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/knstch/blockchain-gateway-api v0.0.5
-	github.com/knstch/subtrack-libs v0.0.17
+	github.com/knstch/subtrack-libs v0.1.2
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.60.0
 	google.golang.org/grpc v1.72.0
 )

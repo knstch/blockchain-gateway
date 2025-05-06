@@ -15,6 +15,8 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+var tracer trace.Tracer
+
 func InitTracer(serviceName, jaegerHost string) func(ctx context.Context) error {
 	exp, err := jaeger.New(
 		jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(jaegerHost)),
@@ -33,12 +35,12 @@ func InitTracer(serviceName, jaegerHost string) func(ctx context.Context) error 
 
 	otel.SetTracerProvider(tp)
 
+	tracer = otel.Tracer(serviceName)
+
 	return tp.Shutdown
 }
 
-func WithTracing(serviceName string) endpoint.Middleware {
-	tracer := otel.Tracer(serviceName)
-
+func WithTracing() endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (interface{}, error) {
 			method, _ := ctx.Value(httptransport.ContextKeyRequestMethod).(string)
@@ -54,5 +56,5 @@ func WithTracing(serviceName string) endpoint.Middleware {
 }
 
 func StartSpan(ctx context.Context, name string) (context.Context, trace.Span) {
-	return otel.Tracer("").Start(ctx, name)
+	return tracer.Start(ctx, name)
 }
